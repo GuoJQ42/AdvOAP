@@ -1,5 +1,7 @@
 # On the Diversity of Adversarial Ensemble Learning
 
+The implementation of AdvOAP in paper "On the Diversity of Adversarial Ensemble Learning".
+
 ## Showing the Diversity
 ```
 python main.py --mode show_diversity

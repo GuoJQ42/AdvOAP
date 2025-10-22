@@ -16,6 +16,8 @@ from models.CNN import CNN_NET, CNN_NET_regression, CNN_NET_classification
 import argparse
 from tester import test_and_save_adv_two_class_regression, test_and_save_adv_two_class_classification, test_and_save_clean_two_class_regression, test_and_save_clean_two_class_classification
 
+import random
+import numpy as np
 
 
 def train_OAP(device, alpha=0.2, beta=10):
@@ -235,8 +237,8 @@ if __name__ == '__main__':
     parser.add_argument('--perturbation_size', type=float, default=8/255)
     parser.add_argument('--perturb_steps_train', type=int, default=10)
     parser.add_argument('--perturb_steps_test', type=int, default=20)
-    parser.add_argument('--step_size_train', type=float, default=1/255)
-    parser.add_argument('--step_size_test', type=float, default=2/255)
+    parser.add_argument('--step_size_train', type=float, default=2/255)
+    parser.add_argument('--step_size_test', type=float, default=1/255)
     parser.add_argument('--num_classes', type=int, default=10)
     parser.add_argument('--scheduler', type=str, default='Cosine')
     parser.add_argument('--model', type=str, default='ResNet20')

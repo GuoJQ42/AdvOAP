@@ -22,3 +22,9 @@ python main.py --num_epochs 60 --num_models 3 --batch_size 512 --learning_rate 0
 ```
 python main.py --num_epochs 250 --num_models 3 --batch_size 256 --learning_rate 0.1 --dataset CIFAR10 --perturbation_size 0.031 --perturb_steps_train 10 --perturb_steps_test 20 --step_size_train 0.0078 --step_size_test 0.0039
 ```
+
+## Testing
+We provide the trained model in checkpoint folder for CIFAR10, run the following command for testing
+```
+python main.py --mode test
+```

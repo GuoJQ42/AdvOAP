@@ -163,6 +163,65 @@ def train_model(idx, device):
         test_and_save_adv(AttackArgs, ensemble_model, test_loader, device, 0, -1, save= True, name = str(idx)+'_last_ckpt')
 
 
+def test_model(device, path):
+
+    if Dataset == 'MNIST':
+        _, test_dataset = load_MNIST('./data/data')
+    elif Dataset == 'Fashion-MNIST':
+        _, test_dataset = load_FashionMNIST('./data/data')
+    elif Dataset == 'CIFAR10':
+        _, test_dataset = load_cifar10('./data/data')
+    elif Dataset == 'CIFAR100':
+        _, test_dataset = load_cifar100('./data/data')
+    
+    test_loader = DataLoader(test_dataset,
+                              batch_size=BATCH_SIZE,
+                              shuffle=False, num_workers=1)
+    
+    adv_accs = []
+    adv_acc_avg = []
+    pred_vars = []
+
+    for i in range(3):
+        model_list = []
+        adv_acc_subs = []
+        
+        for idx, model_idx in enumerate(random.sample([i for i in range(ClASSIFIERS_NUM)], ClASSIFIERS_NUM)):
+
+            if Dataset == 'CIFAR100':
+                model_list.append(ResNet18(100).to(device))
+            else:
+                model_list.append(ResNet20().to(device))
+
+            print(model_idx)
+            # saved = torch.load('./'+path+'/'+str(i)+'_ckpt_'+str(model_idx)+'.pth', weights_only=False)
+            saved = torch.load('./'+path+'/'+str(i)+'_last_ckpt_'+str(model_idx)+'.pth', weights_only=False)
+            # saved = torch.load('./'+path+'/'+str(i)+'_last_ckpt.pth', weights_only=False)
+            model_dict = saved['net']
+            model_list[idx].load_state_dict(model_dict)
+
+            adv_acc_sub = 0
+            adv_acc_subs.append(adv_acc_sub)
+
+       
+        ensemble_model = EnsembleModel(model_list)
+            
+        
+        
+      
+        adv_acc = test_and_save_adv(AttackArgs, ensemble_model, test_loader, device, 0, 0, False, attack_method = AttackArgs['method'])
+
+        adv_accs.append(adv_acc)
+        adv_acc_avg.append(np.mean(adv_acc_subs))
+    print('Adversarial Accuracy of Ensemble Model:')
+    print(adv_accs)
+    print('Adversarial Accuracy of Single Model:')
+    print(adv_acc_avg)
+    # print('Prediction Variance:')
+    # print(pred_vars)
+    print('Adv Acc Ensemble: %.4f+-%.4f, Adv Acc Single: %.4f+-%.4f'%(np.mean(adv_accs), np.std(adv_accs, ddof=1), np.mean(adv_acc_avg), np.std(adv_acc_avg, ddof=1)))
+    return np.mean(adv_accs), np.std(adv_accs, ddof=1)
+
 if __name__ == '__main__':
 
     # Default settings for CIFAR10
@@ -220,5 +279,12 @@ if __name__ == '__main__':
         AttackArgs['model'] = args.model
         TrainArgs['model'] = args.model
         train_OAP(device, args.alpha, args.beta)
+    elif args.mode == 'test':
+        path = 'checkpoint/ResNet20_adv_oap_250_8_0.20_10.00_models'
+        AttackArgs['model'] = 'ResNet20'
+        TrainArgs['model'] = 'ResNet20'
+        print(path)
+        AttackArgs['method'] = 'PGD'
+        test_model(device, path)
     
     
